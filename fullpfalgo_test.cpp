@@ -27,6 +27,7 @@ int main() {
     PFChargedObj outch[NTRACK], outch_ref[NTRACK];
     PFNeutralObj outpho[NPHOTON], outpho_ref[NPHOTON];
     PFNeutralObj outne[NSELCALO], outne_ref[NSELCALO];
+    PFNeutralObj outne_all[NNEUTRALS];
     PFChargedObj outmupf[NMU], outmupf_ref[NMU];
 #if defined(TESTMP7)
     //MP7PatternSerializer serInPatterns( "mp7_input_patterns.txt", HLS_pipeline_II,HLS_pipeline_II-1); // mux each event into HLS_pipeline_II frames
@@ -76,12 +77,22 @@ int main() {
             data_out[i] = 0;
         }
         mp7wrapped_pack_in(emcalo, calo, track, mu, data_in);
-        MP7_TOP_FUNC(data_in, data_out, curvtx.hwZ0);
+        //MP7_TOP_FUNC(data_in, data_out, curvtx.hwZ0);
+        tk2calo_dr_t drvals[NTRACK][NNEUTRALS];
+        
+        mp7wrapped_pfalgo3_onlyPF(data_in, outch, outne_all, drvals, outmupf);
         //tk2em_dr_t   drvals_tk2em[NTRACK][NPHOTON];
         //tk2calo_dr_t drvals_tk2calo[NTRACK][NSELCALO];
         //pfalgo3_full(emcalo, calo, track, mu, outch, outpho, outne, outmupf, drvals_tk2em, drvals_tk2calo);
+        for (int i = 0; i < NPHOTON; i++) {
+            outpho[i] = outne_all[i];
+        }
+        for (int i = 0; i < NSELCALO; i++) {
+            outne[i] = outne_all[i+NPHOTON];
+        }
+
         //mp7wrapped_unpack_out(data_out, outch, outpho, outne, outmupf);
-        mp7wrapped_unpack_out_necomb(data_out, outch, outpho, outne, outmupf);
+        //mp7wrapped_unpack_out_necomb(data_out, outch, outpho, outne, outmupf);
 		// for (int ii = 0; ii < 72; ++ii){ std::cout << ii << ", " << data_in[ii] << std::endl; }
 
         //for (unsigned int di = 0; di < MP7_NCHANN; di++) {
@@ -152,7 +163,7 @@ int main() {
             outallne_ref[ipfne] = outne_ref[ipfne-NPHOTON];
         }
 
-        simple_puppi_ref( outch_ref, outallne_ref, curvtx.hwZ0);
+        //simple_puppi_ref( outch_ref, outallne_ref, curvtx.hwZ0);
         //simple_puppi_hw(  outch_ref, outallne,     curvtx.hwZ0);
         // weight_t curweight;
         // compute_puppi_weight_hw( 100, curweight );
@@ -191,21 +202,6 @@ int main() {
             printf("Passed pf test %d (%d, %d, %d, %d)\n", test, ntot, nch, npho, nneu);
         }
 
-        int puperrors = 0;
-        for (int i = 0; i < NPHOTON; ++i){
-            printf("hwpt = %i, hwptpuppi = %i, refptpuppi = %i, hw-ref_ptpuppi = %i \n", (int) outpho[i].hwPt, (int) outpho[i].hwPtPuppi, (int) outallne_ref[i].hwPtPuppi, int(outpho[i].hwPtPuppi-outallne_ref[i].hwPtPuppi));
-            if (outpho[i].hwPtPuppi-outallne_ref[i].hwPtPuppi != 0 && outpho[i].hwPt>0) puperrors++;
-        }
-        for (int i = 0; i < NSELCALO; ++i){
-            printf("hwpt = %i, hwptpuppi = %i, refptpuppi = %i, hw-ref_ptpuppi = %i \n", (int) outne[i].hwPt, (int) outne[i].hwPtPuppi, (int) outallne_ref[i+NPHOTON].hwPtPuppi, int(outne[i].hwPtPuppi-outallne_ref[i+NPHOTON].hwPtPuppi));
-            if (outne[i].hwPtPuppi-outallne_ref[i+NPHOTON].hwPtPuppi != 0 && outne[i].hwPt>0) puperrors++;
-        }
-        std::cout << "end of test ---- " << test << std::endl;
-
-        if (puperrors>0) {
-            printf("Found %i errors in puppi test!\n", puperrors);
-            //return errors;
-        }
     }
     return 0;
 }

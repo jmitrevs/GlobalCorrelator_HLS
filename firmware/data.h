@@ -9,10 +9,8 @@ typedef ap_int<5>  vtx_t;
 typedef ap_uint<3>  particleid_t;
 typedef ap_int<10> z0_t;  // 40cm / 0.1
 	
-typedef ap_uint<14> tk2em_dr_t;
-typedef ap_uint<14> tk2calo_dr_t;
-typedef ap_uint<10> em2calo_dr_t;
-typedef ap_uint<12> tk2calo_dq_t;
+typedef ap_uint<8> tk2em_dr_t;
+typedef ap_uint<12> tk2calo_dr_t;
 
 enum PID { PID_Charged=0, PID_Neutral=1, PID_Photon=2, PID_Electron=3, PID_Muon=4 };
 
