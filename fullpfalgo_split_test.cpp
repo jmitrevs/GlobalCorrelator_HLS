@@ -2,7 +2,7 @@
 #include <iomanip>
 #include "firmware/simple_fullpfalgo.h"
 #include "vertexing/firmware/simple_vtx.h"
-#include "puppi/firmware/simple_puppi.h"
+#include "puppi/firmware/split_puppi.h"
 #include "utils/random_inputs.h"
 #include "utils/DiscretePFInputs_IO.h"
 #include "utils/pattern_serializer.h"
@@ -42,8 +42,6 @@ int main() {
     //MP7PatternSerializer serOutPatterns2("mp7_output_patterns_magic.txt",HLS_pipeline_II,-HLS_pipeline_II+1); // assume only one PF core running per chip,
     MP7PatternSerializer serInPatterns3( "mp7_input_patterns_nomux.txt");  // 
     MP7PatternSerializer serOutPatterns3("mp7_output_patterns_nomux.txt"); // ,
-#else
-    gdaed*;
 #endif
 #if defined(TESTCTP7)
     CTP7PatternSerializer serInPatterns4( "ctp7_input_patterns_nomux.txt",CTP7_NCHANN_IN, true);  // 
@@ -88,16 +86,23 @@ int main() {
         //MP7_TOP_FUNC(data_in, data_out, curvtx.hwZ0);
 
         PFChargedObj pfch_out_internal[NTRACK]; PFNeutralObj pfne_all_out_internal[NNEUTRALS]; PFChargedObj pfmu_out_internal[NMU];
-        //PFOutputObj pf_comb_internal[NALL];
-        APxDataWord output_inter[NALL];
+        PFOutputObj pf_comb_internal[NALL];
+        PFOutputObj pf_comb_ch_internal[(NTRACK+NMU)];
+        PFOutputObj pf_comb_ne_internal[NNEUTRALS];
         mp7wrapped_pfalgo3_only(data_in, pfch_out_internal, pfne_all_out_internal, pfmu_out_internal);
         //simple_puppi_hw_output(pfch_out_internal, pfne_all_out_internal, pfmu_out_internal, z0_t(curvtx.hwZ0), pf_comb_internal);
-        simple_puppi_hw_apxoutput(pfch_out_internal, pfne_all_out_internal, pfmu_out_internal, z0_t(curvtx.hwZ0), output_inter);
+        ap_uint<17> pt2_shift_internal[NTRACK]; etaphi_t ch_eta_internal[NTRACK]; etaphi_t ch_phi_internal[NTRACK];
+        split_puppi_ch_hw_output(pfch_out_internal, pfmu_out_internal, z0_t(curvtx.hwZ0), pt2_shift_internal, ch_eta_internal, ch_phi_internal, pf_comb_ch_internal);
+        split_puppi_ne_hw_output(pt2_shift_internal, ch_eta_internal, ch_phi_internal, pfne_all_out_internal, pf_comb_ne_internal);
+        for (unsigned int i = 0; i < NALL; ++i) {
+           pf_comb_internal[i] = i < (NTRACK+NMU) ? pf_comb_ch_internal[i] : pf_comb_ne_internal[i-NTRACK-NMU];
+        }
         //sort_output(pf_comb_internal, data_out);
+        APxDataWord output_inter[NALL];
         //apxwrapped_pack_out_comb<NALL>(pf_comb_internal, output_inter);
-        //for (unsigned int i = 0; i < NALL; ++i) {
-        //    output_inter[i] = ( pf_comb_internal[i].hwId, pf_comb_internal[i].hwPhi, pf_comb_internal[i].hwEta, pf_comb_internal[i].hwZ0Pup, pf_comb_internal[i].hwPt );
-        //}
+        for (unsigned int i = 0; i < NALL; ++i) {
+            output_inter[i] = ( pf_comb_internal[i].hwId, pf_comb_internal[i].hwPhi, pf_comb_internal[i].hwEta, pf_comb_internal[i].hwZ0Pup, pf_comb_internal[i].hwPt );
+        }
         APxDataWord output_apx[NOUT_SORT];
         sort_output_apxpack(output_inter, output_apx);
         for (int i = 0; i < NOUT_SORT; i++) {

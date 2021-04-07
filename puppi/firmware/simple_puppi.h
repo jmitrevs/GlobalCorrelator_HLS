@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include "../../firmware/data.h"
+#include "../../firmware/simple_fullpfalgo.h"
 
 typedef ap_uint<8> weight_t;
 // typedef ap_fixed<18,8> weight_t;
@@ -44,8 +45,10 @@ static void lut_puppiweight_init(data_T table_out[N_TABLE])
 }
 
 void simple_puppi_ref(PFChargedObj pfch[NTRACK], PFNeutralObj pfallne[NNEUTRALS], z0_t Z0);
-//void simple_puppi_hw(PFChargedObj pfch[NTRACK], PFNeutralObj pfallne[NNEUTRALS], z0_t Z0);
-void simple_puppi_hw(PFChargedObj pfch[NTRACK], PFNeutralObj pfallne[NNEUTRALS], tk2calo_dr_t drvals[NTRACK][NNEUTRALS], z0_t Z0);
+void simple_puppi_hw(PFChargedObj pfch[NTRACK], PFNeutralObj pfallne[NNEUTRALS], z0_t Z0);
+//void simple_puppi_hw(PFChargedObj pfch[NTRACK], PFNeutralObj pfallne[NNEUTRALS], tk2calo_dr_t drvals[NTRACK][NNEUTRALS], z0_t Z0);
+void simple_puppi_hw_output(PFChargedObj pfch[NTRACK], PFNeutralObj pfallne[NNEUTRALS], PFChargedObj pfmu[NMU], z0_t Z0, PFOutputObj pf_comb[NALL]);
+void simple_puppi_hw_apxoutput(PFChargedObj pfch[NTRACK], PFNeutralObj pfallne[NNEUTRALS], PFChargedObj pfmu[NMU], z0_t Z0, APxDataWord pf_comb_apx[NALL]);
 void compute_puppi_weight_hw(int index, weight_t &weight);
 
 #endif

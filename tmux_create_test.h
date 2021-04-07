@@ -57,7 +57,7 @@ using namespace l1tk;
 void track_convert(l1tpf_int::PropagatedTrack track_in, TkObj &track_pf, int linkNo) {
     // Temporarily must get components of L1Tk obj while waiting for the `official` word type
     tanlam_t tan_lambda = (M_PI/2.)-(2.*atan(exp(-1.*track_in.floatEta())));
-    float phi_center = M_PI*(2.*float(int((track_in.floatPhi()+M_PI)*float(TT_NPHI_SECTORS)/(2.*M_PI)))+1.)/float(TT_NPHI_SECTORS);
+    float phi_center = M_PI*(2.*float(int((track_in.floatPhi()+M_PI)*float(TT_NPHI_SECTORS)/(2.*M_PI)))+1.)/float(TT_NPHI_SECTORS) - M_PI;
     tkphi_t rel_phi = (track_in.floatPhi()-phi_center)/1.026;
     //rinv_t r_inverse = (track_in.hwCharge ? 1. : -1.)*((0.01/kSynchrotron)*(1./track_in.floatPt())-(1./kRmax))/(((1./kRmin)-(1./kRmax))/(double(1<<14)-1.));
     rinv_t r_inverse = (track_in.hwCharge ? 1. : -1.)*(1./track_in.floatPt());
@@ -105,7 +105,7 @@ void track_convert(l1tpf_int::PropagatedTrack track_in, TkObj &track_pf, int lin
 void tp_track_to_words(l1tpf_int::PropagatedTrack track_in, MP7DataWord data[NWORDS_TRACK]) {
     // Temporarily must get components of L1Tk obj while waiting for the `official` word type
     tanlam_t tan_lambda = (M_PI/2.)-(2.*atan(exp(-1.*track_in.floatEta())));
-    float phi_center = M_PI*(2.*float(int((track_in.floatPhi()+M_PI)*float(TT_NPHI_SECTORS)/(2.*M_PI)))+1.)/float(TT_NPHI_SECTORS);
+    float phi_center = M_PI*(2.*float(int((track_in.floatPhi()+M_PI)*float(TT_NPHI_SECTORS)/(2.*M_PI)))+1.)/float(TT_NPHI_SECTORS) - M_PI;
     tkphi_t rel_phi = (track_in.floatPhi()-phi_center)/1.026;
     //rinv_t r_inverse = (track_in.hwCharge ? 1. : -1.)*((0.01/kSynchrotron)*(1./track_in.floatPt())-(1./kRmax))/(((1./kRmin)-(1./kRmax))/(double(1<<14)-1.));
     rinv_t r_inverse = (track_in.hwCharge ? 1. : -1.)*(1./track_in.floatPt());
@@ -209,6 +209,7 @@ void write_track_vector_to_link(std::vector<l1tpf_int::PropagatedTrack> in_vec, 
             index++;
             held = false;
         }
+        //if (index >= )
     }
     if (held) {
         ss.str("");

@@ -133,17 +133,20 @@ struct PFOutputObj {
 /* #define TMUX_OUT 18 */
 #define TMUX_IN 18
 #define TMUX_OUT 6
-#define NTRACK_TMUX (NTRACK*TMUX_OUT*NETA_TMUX*NPHI_TMUX)
-#define NCALO_TMUX (NCALO*TMUX_OUT*NETA_TMUX*NPHI_TMUX)
-#define NEMCALO_TMUX (NEMCALO*TMUX_OUT*NETA_TMUX*NPHI_TMUX)
-#define NMU_TMUX (NMU*TMUX_OUT*NETA_TMUX*NPHI_TMUX)
+#define NTRACK_TMUX 10000
+#define NCALO_TMUX 10000
+#define NEMCALO_TMUX 10000
+#define NMU_TMUX 10000
+///these are arbitrary, just want them to be large enough to handle really large dump files
 
 
 
-#define MP7_NCHANN 144
+//#define MP7_NCHANN 144
+#define MP7_NCHANN 2*NEMCALO + 2*NTRACK + 2*NCALO + 2*NMU
 #define NOUT_SORT 18
 #define CTP7_NCHANN_IN 67
 #define CTP7_NCHANN_OUT 48
 typedef ap_uint<32> MP7DataWord;
+typedef ap_uint<64> APxDataWord;
 
 #endif

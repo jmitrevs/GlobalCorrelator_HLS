@@ -780,9 +780,11 @@ void sorting_network(PFOutputObj datas[NALL]) {
         PFOutputObj datas_wzero[DATA_SIZE];
         #pragma HLS ARRAY_RESHAPE variable=datas_wzero complete
         for (int id = 0; id < NALL; id++) {
+            #pragma HLS LOOP UNROLL
             datas_wzero[id] = datas[id];
         }
         for (int id = NALL; id < DATA_SIZE; id++) {
+            #pragma HLS LOOP UNROLL
             datas_wzero[id].hwPt = pt_t(0);
         }
 
@@ -809,6 +811,7 @@ void sorting_network(PFOutputObj datas[NALL]) {
 	block64_step1_net(datas_wzero);
 
         for (int id = 0; id < NALL; id++) {
+            #pragma HLS LOOP UNROLL
             datas[id] = datas_wzero[DATA_SIZE-id-1];
         }
        

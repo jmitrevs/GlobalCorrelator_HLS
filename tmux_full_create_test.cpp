@@ -37,8 +37,9 @@ int main() {
 
     // input format: could be random or coming from simulation
     //RandomPFInputs inputs(37); // 37 is a good random number
-    DiscretePFInputs inputs("barrel_sectors_1x1_TTbar_PU200.dump");
+    //DiscretePFInputs inputs("barrel_sectors_1x1_TTbar_PU200.dump");
     //DiscretePFInputs inputs("dummy.dump");
+    DiscretePFInputs inputs("full_1000events.dump");
     
     // input TP objects (structs for reading from dump files)
     l1tpf_int::CaloCluster calo[NCALO_TMUX]; 
@@ -180,7 +181,6 @@ int main() {
         MuObj mu_cvt_dummy; mu_cvt_dummy.hwPt = 0; mu_cvt_dummy.hwPtErr = 0; mu_cvt_dummy.hwEta = 0; mu_cvt_dummy.hwPhi = 0;
 
 
-
         // -----------------------------------------
         // Fill input links, convert TP to PF objects
 
@@ -243,20 +243,28 @@ int main() {
 
         // resize to ensure number of objects can be sent in one link group
         for (int il = 0; il < NLINKS_PER_TRACK; il++) {
+            std::cout<<track_tp[il].size();
             track_tp [il].resize(((NCLK_PER_BX*TMUX_IN-1)*2)/NWORDS_TRACK, track_dummy);
             track_cvt[il].resize(((NCLK_PER_BX*TMUX_IN-1)*2)/NWORDS_TRACK, track_cvt_dummy);
+            std::cout<<" "<<track_tp[il].size()<<std::endl;
         }
         for (int il = 0; il < NLINKS_PER_CALO; il++) {
+            std::cout<<calo_tp[il].size();
             calo_tp [il].resize(((NCLK_PER_BX*TMUX_IN-1)*2)/NWORDS_CALO, calo_dummy);
             calo_cvt[il].resize(((NCLK_PER_BX*TMUX_IN-1)*2)/NWORDS_CALO, calo_cvt_dummy);
+            std::cout<<" "<<calo_tp[il].size()<<std::endl;
         }
         for (int il = 0; il < NLINKS_PER_EMCALO; il++) {
+            std::cout<<emcalo_tp[il].size();
             emcalo_tp [il].resize(((NCLK_PER_BX*TMUX_IN-1)*2)/NWORDS_EMCALO, emcalo_dummy);
             emcalo_cvt[il].resize(((NCLK_PER_BX*TMUX_IN-1)*2)/NWORDS_EMCALO, emcalo_cvt_dummy);
+            std::cout<<" "<<emcalo_tp[il].size()<<std::endl;
         }
         for (int il = 0; il < NLINKS_PER_MU; il++) {
+            std::cout<<mu_tp[il].size();
             mu_tp [il].resize(((NCLK_PER_BX*TMUX_IN-1)*2)/NWORDS_MU, mu_dummy);
             mu_cvt[il].resize(((NCLK_PER_BX*TMUX_IN-1)*2)/NWORDS_MU, mu_cvt_dummy);
+            std::cout<<" "<<mu_tp[il].size()<<std::endl;
         }
 
         // -----------------------------------------

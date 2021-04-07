@@ -27,7 +27,7 @@ struct Event {
 		fread(&alphaCMed, sizeof(float), 1, fRegionDump);
 		fread(&alphaCRms, sizeof(float), 1, fRegionDump);
 		fread(&alphaFMed, sizeof(float), 1, fRegionDump);
-		fread(&alphaFRms, sizeof(float), 1, fRegionDump);
+		return fread(&alphaFRms, sizeof(float), 1, fRegionDump);
 	}
 };
 

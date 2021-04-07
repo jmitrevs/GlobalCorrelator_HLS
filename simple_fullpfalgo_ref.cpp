@@ -281,7 +281,8 @@ void pfalgo3_full_ref(EmCaloObj emcalo[NEMCALO], HadCaloObj hadcalo[NCALO], TkOb
     // initialize good track bit
     bool track_good[NTRACK];
     for (int it = 0; it < NTRACK; ++it) { 
-        track_good[it] = (track[it].hwPt < (track[it].hwTightQuality ? TKPT_MAX_TIGHT : TKPT_MAX_LOOSE) || isEle[it] || isMu[it]); 
+        track_good[it] = (track[it].hwPt < (track[it].hwTightQuality ? TKPT_MAX_TIGHT : TKPT_MAX_LOOSE) || isEle[it] || isMu[it]);
+	std::cout << "Track " << it << " good: " << track_good[it] << std::endl;
     }
 
     // initialize output

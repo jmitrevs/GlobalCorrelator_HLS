@@ -743,7 +743,7 @@ void block64_step1_net(PFOutputObj datas[DATA_SIZE]) {
 
 
 void sorting_network(PFOutputObj datas[DATA_SIZE]) {
-#pragma HLS pipeline II=3 rewind
+#pragma HLS pipeline II=2 rewind
 
 	block2_step1_net(datas);
 	block4_step2_net(datas);

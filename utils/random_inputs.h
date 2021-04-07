@@ -34,7 +34,7 @@ public:
 			float dpt_calo = ((rand()/float(RAND_MAX))*3-1.5) * (0.2*pt+4);
 			float deta_calo = ((rand()/float(RAND_MAX))*0.3-0.15), dphi_calo = ((rand()/float(RAND_MAX))*0.3-0.15);
 			if (pt + dpt_calo > 0) {
-				calo[icalo].hwPt  += (pt + dpt_calo) * PT_SCALE;
+			        calo[icalo].hwPt  += static_cast<decltype(calo[icalo].hwPt)>((pt + dpt_calo) * PT_SCALE);
 				calo[icalo].hwEta = (eta + deta_calo) * ETAPHI_SCALE;
 				calo[icalo].hwPhi = (phi + dphi_calo) * ETAPHI_SCALE;
 			}
