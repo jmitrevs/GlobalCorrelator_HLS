@@ -1,4 +1,5 @@
 #include "swap.hpp"
+#include "sorting_network_corr.hpp"
 
 void block2_step1_net(PFOutputObj datas[DATA_SIZE]) {
 	swap2(datas[0], datas[1]);
@@ -559,22 +560,22 @@ void block64_step32_net(PFOutputObj datas[DATA_SIZE]) {
 	//swap2(datas[29], datas[61]);
 	//swap2(datas[30], datas[62]);
 	//swap2(datas[31], datas[63]);
-	std::swap(datas[16], datas[48]);
-	std::swap(datas[17], datas[49]);
-	std::swap(datas[18], datas[50]);
-	std::swap(datas[19], datas[51]);
-	std::swap(datas[20], datas[52]);
-	std::swap(datas[21], datas[53]);
-	std::swap(datas[22], datas[54]);
-	std::swap(datas[23], datas[55]);
-	std::swap(datas[24], datas[56]);
-	std::swap(datas[25], datas[57]);
-	std::swap(datas[26], datas[58]);
-	std::swap(datas[27], datas[59]);
-	std::swap(datas[28], datas[60]);
-	std::swap(datas[29], datas[61]);
-	std::swap(datas[30], datas[62]);
-	std::swap(datas[31], datas[63]);
+	swap(datas[16], datas[48]);
+	swap(datas[17], datas[49]);
+	swap(datas[18], datas[50]);
+	swap(datas[19], datas[51]);
+	swap(datas[20], datas[52]);
+	swap(datas[21], datas[53]);
+	swap(datas[22], datas[54]);
+	swap(datas[23], datas[55]);
+	swap(datas[24], datas[56]);
+	swap(datas[25], datas[57]);
+	swap(datas[26], datas[58]);
+	swap(datas[27], datas[59]);
+	swap(datas[28], datas[60]);
+	swap(datas[29], datas[61]);
+	swap(datas[30], datas[62]);
+	swap(datas[31], datas[63]);
 }
 
 //0s on 16-31
@@ -595,22 +596,22 @@ void block64_step16_net(PFOutputObj datas[DATA_SIZE]) {
 	//swap2(datas[13], datas[29]);
 	//swap2(datas[14], datas[30]);
 	//swap2(datas[15], datas[31]);
-	std::swap(datas[0], datas[16]);
-	std::swap(datas[1], datas[17]);
-	std::swap(datas[2], datas[18]);
-	std::swap(datas[3], datas[19]);
-	std::swap(datas[4], datas[20]);
-	std::swap(datas[5], datas[21]);
-	std::swap(datas[6], datas[22]);
-	std::swap(datas[7], datas[23]);
-	std::swap(datas[8], datas[24]);
-	std::swap(datas[9], datas[25]);
-	std::swap(datas[10], datas[26]);
-	std::swap(datas[11], datas[27]);
-	std::swap(datas[12], datas[28]);
-	std::swap(datas[13], datas[29]);
-	std::swap(datas[14], datas[30]);
-	std::swap(datas[15], datas[31]);
+	swap(datas[0], datas[16]);
+	swap(datas[1], datas[17]);
+	swap(datas[2], datas[18]);
+	swap(datas[3], datas[19]);
+	swap(datas[4], datas[20]);
+	swap(datas[5], datas[21]);
+	swap(datas[6], datas[22]);
+	swap(datas[7], datas[23]);
+	swap(datas[8], datas[24]);
+	swap(datas[9], datas[25]);
+	swap(datas[10], datas[26]);
+	swap(datas[11], datas[27]);
+	swap(datas[12], datas[28]);
+	swap(datas[13], datas[29]);
+	swap(datas[14], datas[30]);
+	swap(datas[15], datas[31]);
 	swap2(datas[32], datas[48]);
 	swap2(datas[33], datas[49]);
 	swap2(datas[34], datas[50]);
@@ -774,17 +775,17 @@ void block64_step1_net(PFOutputObj datas[DATA_SIZE]) {
 }
 
 
-void sorting_network(PFOutputObj datas[NALL]) {
-#pragma HLS pipeline II=HLS_pipeline_II rewind
+void sorting_network(PFOutputObj datas[NALL], PFOutputObj data_sort[NOUT_SORT]) {
+#pragma HLS pipeline II=1 rewind
 
         PFOutputObj datas_wzero[DATA_SIZE];
         #pragma HLS ARRAY_RESHAPE variable=datas_wzero complete
         for (int id = 0; id < NALL; id++) {
-            #pragma HLS LOOP UNROLL
+            #pragma HLS UNROLL
             datas_wzero[id] = datas[id];
         }
         for (int id = NALL; id < DATA_SIZE; id++) {
-            #pragma HLS LOOP UNROLL
+            #pragma HLS UNROLL
             datas_wzero[id].hwPt = pt_t(0);
         }
 
@@ -810,9 +811,9 @@ void sorting_network(PFOutputObj datas[NALL]) {
 	block64_step2_net(datas_wzero);
 	block64_step1_net(datas_wzero);
 
-        for (int id = 0; id < NALL; id++) {
-            #pragma HLS LOOP UNROLL
-            datas[id] = datas_wzero[DATA_SIZE-id-1];
+        for (int id = 0; id < NOUT_SORT; id++) {
+            #pragma HLS UNROLL
+	    data_sort[id] = datas_wzero[DATA_SIZE-id-1];
         }
        
 }

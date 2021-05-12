@@ -4,10 +4,7 @@
 #include "../../firmware/data.h"
 
 // avoid Cosim Error
-//#include "/opt/Xilinx/Vivado/2018.1/include/gmp.h"
-//#include "/opt/Xilinx/Vivado/2018.1/include/mpfr.h"
-#include "/data/Xilinx/Vivado/Vivado/2018.1/include/gmp.h"
-#include "/data/Xilinx/Vivado/Vivado/2018.1/include/mpfr.h"
+
 
 #include "ap_int.h"
 #include "hls_stream.h"

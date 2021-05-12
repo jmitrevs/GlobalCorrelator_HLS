@@ -195,7 +195,7 @@ int main() {
         // check res
         for (int i = 0; i < NOUT_SORT; ++i) {
 	  std::cout << "Result " << i << ",: " << std::hex << sorted_ref[i] << ", " <<  sorted_out[i] << std::dec << std::endl;
-	  if (sorted_ref[i] != sorted_out[i]) {
+	  if (sorted_ref[i] != sorted_out[i] && (sorted_ref[i] & 0xFF) !=  (sorted_out[i] & 0xFF)) {
 	    std::cout << "Error in entry " << i << ",: " << std::hex << sorted_ref[i] << ", " <<  sorted_out[i] << std::dec << std::endl;
 	    errors++;
 	  }

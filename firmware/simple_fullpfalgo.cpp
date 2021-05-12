@@ -3,7 +3,7 @@
 #include "mp7pf_encoding.h"
 #include <cmath>
 #include <cassert>
-//#include "../bitonic-sort-48/hls/sorting_network_corr.hpp"
+#include "../bitonic-sort-48/hls/sorting_network_corr.hpp"
 //#include "../sorting/sort_group.h"
 #ifndef __SYNTHESIS__
 #include <cstdio>
@@ -1365,7 +1365,7 @@ void sort_output_apxpack(APxDataWord input[NALL], APxDataWord output[NOUT_SORT])
     #pragma HLS ARRAY_PARTITION variable=output complete
     #pragma HLS INTERFACE ap_none port=output
 
-    #pragma HLS pipeline II=6 rewind
+    #pragma HLS pipeline II=1 rewind
 
     PFOutputObj pf_comb[NALL];
     #pragma HLS ARRAY_PARTITION variable=pf_comb complete
@@ -1387,19 +1387,19 @@ void sort_output_onlycands(PFOutputObj pf_comb[NALL], PFOutputObj pf_sort[NOUT_S
     #pragma HLS ARRAY_PARTITION variable=pf_sort complete
     #pragma HLS INTERFACE ap_none port=pf_sort
 
-    #pragma HLS pipeline II=6 rewind
+    #pragma HLS pipeline II=1 rewind
 
 //group sort
 //    sort_group(pf_comb,pf_sort);
 
 //gio sort
-    ptsort_hwopt<PFOutputObj,NALL,NOUT_SORT>(pf_comb,pf_sort);
+//    ptsort_hwopt<PFOutputObj,NALL,NOUT_SORT>(pf_comb,pf_sort);
 
 //null
 //    buffer_ff<PFOutputObj,NALL>(pf_comb, pf_sort);
 
 //bitonic sort
-//    sorting_network(pf_sort);
+  sorting_network(pf_comb, pf_sort);
 
 
 }
