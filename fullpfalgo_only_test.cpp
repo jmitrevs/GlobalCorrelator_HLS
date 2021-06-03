@@ -10,7 +10,8 @@
 #include "utils/test_utils.h"
 //#include "bitonic-sort-48/hls/sorting_network_corr.hpp"
 
-bool compare_hwPt(PFOutputObj i1, PFOutputObj i2) 
+template<class T>
+bool compare_hwPt(T i1, T i2) 
 { 
     return (i1.hwPt > i2.hwPt); 
 } 
@@ -111,27 +112,31 @@ int main() {
         }
         mp7wrapped_pack_in(emcalo, calo, track, mu, data_in);
 
-        PFChargedObj pfch_out_internal[NTRACK]; PFNeutralObj pfne_all_out_internal[NNEUTRALS]; PFChargedObj pfmu_out_internal[NMU];
+        //PFChargedObj pfch_out_internal[NTRACK]; PFNeutralObj pfne_all_out_internal[NNEUTRALS]; PFChargedObj pfmu_out_internal[NMU];
+        PFChargedObj pfch_out_internal[NTRACK]; PFNeutralObj pfpho_out_internal[NPHOTON]; PFNeutralObj pfne_out_internal[NCALO]; PFChargedObj pfmu_out_internal[NMU];
 
-        mp7wrapped_pfalgo3_only(data_in, pfch_out_internal, pfne_all_out_internal, pfmu_out_internal);
+        //mp7wrapped_pfalgo3_only(data_in, pfch_out_internal, pfne_all_out_internal, pfmu_out_internal);
+        mp7wrapped_pfalgo3_only(data_in, pfch_out_internal, pfpho_out_internal, pfne_out_internal, pfmu_out_internal);
 
+	std::sort(pfne_out_internal, pfne_out_internal+NCALO, compare_hwPt<PFNeutralObj>);
 
         pfalgo3_full_ref(emcalo, calo, track, mu, outch_ref, outpho_ref, outne_ref, outmupf_ref);
 
 
-	// the reference puts neutrals separately; let's combine
-	PFNeutralObj outne_all_ref[NNEUTRALS];
-	for (int i = 0; i < NNEUTRALS; i++) {
-	  if (i < NPHOTON) {
-	    outne_all_ref[i] = outpho_ref[i];
-	  } else {
-	    outne_all_ref[i] = outne_ref[i - NPHOTON];
-	  }
-	}
+	// // the reference puts neutrals separately; let's combine
+	// PFNeutralObj outne_all_ref[NNEUTRALS];
+	// for (int i = 0; i < NNEUTRALS; i++) {
+	//   if (i < NPHOTON) {
+	//     outne_all_ref[i] = outpho_ref[i];
+	//   } else {
+	//     outne_all_ref[i] = outne_ref[i - NPHOTON];
+	//   }
+	// }
 
 
 	print3vecId("pfch_out", NTRACK, pfch_out_internal);
-	print3vecId("pfne_all_out", NNEUTRALS, pfne_all_out_internal);
+	print3vecId("pfpho_out", NPHOTON, pfne_out_internal);
+	print3vecId("pfne_out", NCALO, pfne_out_internal);
 	print3vecId("pfmu_out", NMU, pfmu_out_internal);
 
 	print3vecId("outch_ref", NTRACK, outch_ref);
@@ -149,9 +154,14 @@ int main() {
             if (outch_ref[i].hwPt > 0) { ntot++; }
         }
         // check pf
-        for (int i = 0; i < NNEUTRALS; ++i) {
-	    if (!pf_equals(outne_all_ref[i], pfne_all_out_internal[i], "PFch", i)) errors++;
-            if (outne_all_ref[i].hwPt > 0) { ntot++; }
+        for (int i = 0; i < NPHOTON; ++i) {
+	    if (!pf_equals(outpho_ref[i], pfpho_out_internal[i], "PFpho", i)) errors++;
+            if (outpho_ref[i].hwPt > 0) { ntot++; }
+        }
+        // check pf
+        for (int i = 0; i < NSELCALO; ++i) {
+	    if (!pf_equals(outne_ref[i], pfne_out_internal[i], "PFne", i)) errors++;
+            if (outne_ref[i].hwPt > 0) { ntot++; }
         }
         // check pf
         for (int i = 0; i < NMU; ++i) {
