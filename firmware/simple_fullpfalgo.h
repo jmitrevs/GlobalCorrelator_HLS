@@ -59,6 +59,14 @@ void apxwrapped_unpack_in_comb( APxDataWord data[NOUT], PFOutputObj pfout[NOUT])
 
 }
 
+template<class T>
+T HLS_REG(T in){
+#pragma HLS pipeline
+#pragma HLS inline off
+#pragma HLS LATENCY min=1 max=1
+    return in;
+}
+
 #endif
 
 #ifndef DRVALSET

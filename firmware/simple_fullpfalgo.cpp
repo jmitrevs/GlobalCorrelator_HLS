@@ -9,14 +9,6 @@
 #include <cstdio>
 #endif
 
-template<class T>
-T HLS_REG(T in){
-#pragma HLS pipeline
-#pragma HLS inline off
-#pragma HLS LATENCY min=1 max=1
-    return in;
-}
-
 int dr2_int(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2) {
     etaphi_t deta = (eta1-eta2);
     etaphi_t dphi = (phi1-phi2);
