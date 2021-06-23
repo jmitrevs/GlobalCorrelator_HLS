@@ -110,6 +110,13 @@ struct PFNeutralObj {
 	pt_t hwPt;
 	etaphi_t hwEta, hwPhi; // relative to the region center, at calo
 	particleid_t hwId;
+  //pt_t hwPtPuppi;
+};
+
+struct PFNeutralObj_puppi {
+	pt_t hwPt;
+	etaphi_t hwEta, hwPhi; // relative to the region center, at calo
+	particleid_t hwId;
   pt_t hwPtPuppi;
 };
 struct VtxObj {
