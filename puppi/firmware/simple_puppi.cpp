@@ -37,7 +37,7 @@ int _lut_shift15_divide(ap_uint<17> num, ap_uint<9> den) { // returns (num * 2^1
 	return (num * _table[den]);
 }
 
-void simple_puppi_hw(PFChargedObj pfch[NTRACK], PFNeutralObj pfallne[NNEUTRALS], z0_t Z0) {
+void simple_puppi_hw(PFChargedObj pfch[NTRACK], PFNeutralObj_puppi pfallne[NNEUTRALS], z0_t Z0) {
 //void simple_puppi_hw(PFChargedObj pfch[NTRACK], PFNeutralObj pfallne[NNEUTRALS], tk2calo_dr_t drvals[NTRACK][NNEUTRALS], z0_t Z0) {
 
     const z0_t DZMAX = 256;
@@ -122,11 +122,14 @@ void simple_puppi_hw_output(PFChargedObj pfch[NTRACK], PFNeutralObj pfallne_in[N
     #pragma HLS ARRAY_PARTITION variable=pf_comb complete
     #pragma HLS INTERFACE ap_none port=pf_comb
 
-    PFNeutralObj pfallne[NNEUTRALS];
+    PFNeutralObj_puppi pfallne[NNEUTRALS];
     #pragma HLS ARRAY_PARTITION variable=pfallne complete
     for (unsigned int i = 0; i < NNEUTRALS; i++) {
         #pragma HLS UNROLL
-        pfallne[i] = pfallne_in[i];
+        pfallne[i].hwPt = pfallne_in[i].hwPt;
+        pfallne[i].hwEta = pfallne_in[i].hwEta;
+        pfallne[i].hwPhi = pfallne_in[i].hwPhi;
+        pfallne[i].hwId = pfallne_in[i].hwId;
     }
 
     #pragma HLS pipeline II=2
