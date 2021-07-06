@@ -9,6 +9,32 @@
 #include <cstdio>
 #endif
 
+
+template<typename OBJ_T, int NOBJ1, int NOBJ2>
+void buffer_ff_2d(OBJ_T calo[NOBJ1][NOBJ2], OBJ_T calo_out[NOBJ1][NOBJ2]) {
+
+    OBJ_T hadcalo_sub_tmp[NOBJ1][NOBJ2];
+    #pragma HLS DATA_PACK variable=hadcalo_sub_tmp
+    #pragma HLS ARRAY_PARTITION variable=hadcalo_sub_tmp complete dim=0
+
+    for (int icalo1 = 0; icalo1 < NOBJ1; ++icalo1) {
+      //#pragma HLS latency min=1
+      #pragma HLS UNROLL
+      for (int icalo2 = 0; icalo2 < NOBJ2; ++icalo2) {
+        #pragma HLS UNROLL
+        hadcalo_sub_tmp[icalo1][icalo2] = calo[icalo1][icalo2];
+      }
+    }
+    for (int icalo1 = 0; icalo1 < NOBJ1; ++icalo1) {
+      #pragma HLS latency min=1
+      #pragma HLS UNROLL
+      for (int icalo2 = 0; icalo2 < NOBJ2; ++icalo2) {
+        #pragma HLS UNROLL
+        calo_out[icalo1][icalo2] = hadcalo_sub_tmp[icalo1][icalo2];
+      }
+    }
+}
+
 int dr2_int(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2) {
     etaphi_t deta = (eta1-eta2);
     etaphi_t dphi = (phi1-phi2);
@@ -289,20 +315,26 @@ void tk2calo_link_dronly(HadCaloObj calo[NCALO], TkObj track[NTRACK], ap_uint<NC
 void tk2calo_link_drdpt(HadCaloObj calo[NCALO], TkObj track[NTRACK], ap_uint<NCALO> calo_track_link_bit[NTRACK]) {
     const int DR2MAX = PFALGO3_DR2MAX_TK_CALO;
     const int DQMAX = 5*DR2MAX;
+    tk2calo_dq_t drvals_temp[NTRACK][NCALO];
     tk2calo_dq_t drvals[NTRACK][NCALO];
+    #pragma HLS ARRAY_PARTITION variable=drvals_temp complete dim=0
     #pragma HLS ARRAY_PARTITION variable=drvals complete dim=0
 
-    tk2calo_drdptvals<DR2MAX>(calo, track, drvals);
+    tk2calo_drdptvals<DR2MAX>(calo, track, drvals_temp);
+    buffer_ff_2d<tk2calo_dq_t, NTRACK, NCALO>(drvals_temp, drvals);
     pick_closest<DQMAX,NTRACK,NCALO,tk2calo_dq_t>(drvals, calo_track_link_bit);
 }
 
 void tk2em_link(EmCaloObj calo[NEMCALO], TkObj track[NTRACK], ap_uint<NEMCALO> calo_track_link_bit[NTRACK], bool isMu[NTRACK]) {
     const int DR2MAX = PFALGO3_DR2MAX_TK_EM;
+    tk2em_dr_t drvals_temp[NTRACK][NEMCALO];
+    #pragma HLS ARRAY_PARTITION variable=drvals_temp complete dim=0
     tk2em_dr_t drvals[NTRACK][NEMCALO];
     #pragma HLS ARRAY_PARTITION variable=drvals complete dim=0
 
     //tk2em_drvals<DR2MAX>(calo, track, drvals, isMu);
-    tk2em_drvals<PFPUPPI_DR2MAX>(calo, track, drvals, isMu);
+    tk2em_drvals<PFPUPPI_DR2MAX>(calo, track, drvals_temp, isMu);
+    buffer_ff_2d<tk2calo_dr_t, NTRACK, NEMCALO>(drvals_temp, drvals);
     pick_closest<DR2MAX,NTRACK,NEMCALO,tk2em_dr_t>(drvals, calo_track_link_bit);
 
     // for (int it = 0; it < NTRACK; it++){
@@ -312,10 +344,13 @@ void tk2em_link(EmCaloObj calo[NEMCALO], TkObj track[NTRACK], ap_uint<NEMCALO> c
 }
 void em2calo_link(EmCaloObj emcalo[NEMCALO], HadCaloObj hadcalo[NCALO], ap_uint<NCALO> em_calo_link_bit[NCALO]) {
     const int DR2MAX = PFALGO3_DR2MAX_EM_CALO;
+    em2calo_dr_t drvals_temp[NEMCALO][NCALO];
+    #pragma HLS ARRAY_PARTITION variable=drvals_temp complete dim=0
     em2calo_dr_t drvals[NEMCALO][NCALO];
     #pragma HLS ARRAY_PARTITION variable=drvals complete dim=0
 
-    em2calo_drvals<DR2MAX>(hadcalo, emcalo, drvals);
+    em2calo_drvals<DR2MAX>(hadcalo, emcalo, drvals_temp);
+    buffer_ff_2d<em2calo_dr_t, NEMCALO, NCALO>(drvals_temp, drvals);
     pick_closest<DR2MAX,NEMCALO,NCALO,em2calo_dr_t>(drvals, em_calo_link_bit);
 }
 
@@ -603,30 +638,6 @@ void buffer_bram(OBJ_T calo[NOBJ], OBJ_T calo_out[NOBJ]) {
     }
 }
 
-template<typename OBJ_T, int NOBJ1, int NOBJ2>
-void buffer_ff_2d(OBJ_T calo[NOBJ1][NOBJ2], OBJ_T calo_out[NOBJ1][NOBJ2]) {
-
-    OBJ_T hadcalo_sub_tmp[NOBJ1][NOBJ2];
-    #pragma HLS DATA_PACK variable=hadcalo_sub_tmp
-    #pragma HLS ARRAY_PARTITION variable=hadcalo_sub_tmp complete dim=0
-   
-    for (int icalo1 = 0; icalo1 < NOBJ1; ++icalo1) {
-      #pragma HLS latency min=1
-      #pragma HLS UNROLL
-      for (int icalo2 = 0; icalo2 < NOBJ2; ++icalo2) {
-        #pragma HLS UNROLL
-        hadcalo_sub_tmp[icalo1][icalo2] = calo[icalo1][icalo2];
-      }
-    }
-    for (int icalo1 = 0; icalo1 < NOBJ1; ++icalo1) {
-      #pragma HLS latency min=1
-      #pragma HLS UNROLL
-      for (int icalo2 = 0; icalo2 < NOBJ2; ++icalo2) {
-        #pragma HLS UNROLL
-        calo_out[icalo1][icalo2] = hadcalo_sub_tmp[icalo1][icalo2];
-      }
-    }
-}
 
 //-------------------------------------------------------
 // PF Algos
