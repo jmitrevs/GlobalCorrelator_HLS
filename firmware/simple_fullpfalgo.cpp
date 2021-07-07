@@ -10,6 +10,19 @@
 #endif
 
 
+// helpers (buffers) 
+// note:  Vivado_HLS can make name clashes for separate compilations (fixed in Vitis_HLS), which
+//        is why these are defined separately in simple_fullpfalgo and simple_puppi with diff names.
+
+
+template<class T>
+T HLS_REG(T in){
+#pragma HLS pipeline
+#pragma HLS inline off
+#pragma HLS LATENCY min=1 max=1
+    return in;
+}
+
 template<typename OBJ_T, int NOBJ1, int NOBJ2>
 void buffer_ff_2d(OBJ_T calo[NOBJ1][NOBJ2], OBJ_T calo_out[NOBJ1][NOBJ2]) {
 
@@ -34,6 +47,46 @@ void buffer_ff_2d(OBJ_T calo[NOBJ1][NOBJ2], OBJ_T calo_out[NOBJ1][NOBJ2]) {
       }
     }
 }
+
+template<typename OBJ_T, int NOBJ>
+void buffer_ff(OBJ_T obj[NOBJ], OBJ_T obj_out[NOBJ]) {
+
+    OBJ_T obj_tmp[NOBJ];
+    #pragma HLS DATA_PACK variable=obj_tmp
+    #pragma HLS ARRAY_PARTITION variable=obj_tmp complete
+   
+    for (int iobj = 0; iobj < NOBJ; ++iobj) {
+      //#pragma HLS latency min=1
+        #pragma HLS UNROLL
+        obj_tmp[iobj] = obj[iobj];
+    }
+    for (int iobj = 0; iobj < NOBJ; ++iobj) {
+        #pragma HLS latency min=1
+        #pragma HLS UNROLL
+        obj_out[iobj] = obj_tmp[iobj];
+    }
+}
+
+// template<typename OBJ_T, int NOBJ>
+// void buffer_bram(OBJ_T calo[NOBJ], OBJ_T calo_out[NOBJ]) {
+// #pragma HLS dataflow
+
+//     hls::stream<OBJ_T> hadcalo_sub_tmp[NOBJ];
+//     #pragma HLS DATA_PACK variable=hadcalo_sub_tmp
+//     #pragma HLS ARRAY_PARTITION variable=hadcalo_sub_tmp complete
+//     #pragma HLS STREAM variable=hadcalo_sub_tmp depth=10
+   
+//     for (int icalo = 0; icalo < NOBJ; ++icalo) {
+//         #pragma HLS latency min=1
+//         #pragma HLS UNROLL
+//         hadcalo_sub_tmp[icalo].write(calo[icalo]);
+//     }
+//     for (int icalo = 0; icalo < NOBJ; ++icalo) {
+//         #pragma HLS latency min=1
+//         #pragma HLS UNROLL
+//         calo_out[icalo] = hadcalo_sub_tmp[icalo].read();
+//     }
+// }
 
 int dr2_int(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2) {
     etaphi_t deta = (eta1-eta2);
@@ -598,45 +651,6 @@ void spfph_mualgo(MuObj mu[NMU], TkObj track[NTRACK], ap_uint<NMU> mu_track_link
     }
 }
 
-template<typename OBJ_T, int NOBJ>
-void buffer_ff(OBJ_T obj[NOBJ], OBJ_T obj_out[NOBJ]) {
-
-    OBJ_T obj_tmp[NOBJ];
-    #pragma HLS DATA_PACK variable=obj_tmp
-    #pragma HLS ARRAY_PARTITION variable=obj_tmp complete
-   
-    for (int iobj = 0; iobj < NOBJ; ++iobj) {
-        #pragma HLS latency min=1
-        #pragma HLS UNROLL
-        obj_tmp[iobj] = obj[iobj];
-    }
-    for (int iobj = 0; iobj < NOBJ; ++iobj) {
-        #pragma HLS latency min=1
-        #pragma HLS UNROLL
-        obj_out[iobj] = obj_tmp[iobj];
-    }
-}
-
-template<typename OBJ_T, int NOBJ>
-void buffer_bram(OBJ_T calo[NOBJ], OBJ_T calo_out[NOBJ]) {
-#pragma HLS dataflow
-
-    hls::stream<OBJ_T> hadcalo_sub_tmp[NOBJ];
-    #pragma HLS DATA_PACK variable=hadcalo_sub_tmp
-    #pragma HLS ARRAY_PARTITION variable=hadcalo_sub_tmp complete
-    #pragma HLS STREAM variable=hadcalo_sub_tmp depth=10
-   
-    for (int icalo = 0; icalo < NOBJ; ++icalo) {
-        #pragma HLS latency min=1
-        #pragma HLS UNROLL
-        hadcalo_sub_tmp[icalo].write(calo[icalo]);
-    }
-    for (int icalo = 0; icalo < NOBJ; ++icalo) {
-        #pragma HLS latency min=1
-        #pragma HLS UNROLL
-        calo_out[icalo] = hadcalo_sub_tmp[icalo].read();
-    }
-}
 
 
 //-------------------------------------------------------
