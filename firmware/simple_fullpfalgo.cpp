@@ -67,26 +67,6 @@ void buffer_ff(OBJ_T obj[NOBJ], OBJ_T obj_out[NOBJ]) {
     }
 }
 
-// template<typename OBJ_T, int NOBJ>
-// void buffer_bram(OBJ_T calo[NOBJ], OBJ_T calo_out[NOBJ]) {
-// #pragma HLS dataflow
-
-//     hls::stream<OBJ_T> hadcalo_sub_tmp[NOBJ];
-//     #pragma HLS DATA_PACK variable=hadcalo_sub_tmp
-//     #pragma HLS ARRAY_PARTITION variable=hadcalo_sub_tmp complete
-//     #pragma HLS STREAM variable=hadcalo_sub_tmp depth=10
-   
-//     for (int icalo = 0; icalo < NOBJ; ++icalo) {
-//         #pragma HLS latency min=1
-//         #pragma HLS UNROLL
-//         hadcalo_sub_tmp[icalo].write(calo[icalo]);
-//     }
-//     for (int icalo = 0; icalo < NOBJ; ++icalo) {
-//         #pragma HLS latency min=1
-//         #pragma HLS UNROLL
-//         calo_out[icalo] = hadcalo_sub_tmp[icalo].read();
-//     }
-// }
 
 int dr2_int(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2) {
     etaphi_t deta = (eta1-eta2);
@@ -94,48 +74,35 @@ int dr2_int(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2) {
     return deta*deta + dphi*dphi;
 }
 
-/*template<int NB>
-ap_uint<NB> dr2_int_cap(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2, ap_uint<NB> max) {
-    etaphi_t deta = eta2-eta1;
-    etaphi_t dphi = phi2-phi1;
-    int dr2 = deta*deta + dphi*dphi;
-    return (dr2 < int(max) ? ap_uint<NB>(dr2) : max);
-}*/ //old version
 template<int NB>
 ap_uint<NB> dr2_int_cap(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2, ap_uint<NB> max) {
-    //hardcode for etaphi size
-    int tmpe = eta1-eta2;
-    ap_uint<NB> deta = (tmpe > 0 ? tmpe : -tmpe);
-    int tmpp = phi1-phi2;
-    ap_uint<NB> dphi = (tmpp > 0 ? tmpp : -tmpp);
-    int dr2 = max;
-    if ((deta >> (NB/2))==0 && (dphi >> (NB/2))==0) {
-        ap_uint<NB> deta2 = deta*deta;
-        ap_uint<NB> dphi2 = dphi*dphi;
-        dr2 = deta2 + dphi2;
-    }
+    auto deta = eta2-eta1;
+    auto dphi = phi2-phi1;
+    int dr2 = deta*deta + dphi*dphi;
     return (dr2 < int(max) ? ap_uint<NB>(dr2) : max);
 }
 
 template<int NB, typename PTS_t>
 ap_uint<NB> dr2_dpt_int_cap(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2, pt_t pt1, pt_t pt2, PTS_t ptscale, ap_uint<NB> dr2max, ap_uint<NB> max) {
-    etaphi_t deta = (eta1-eta2);
-    etaphi_t dphi = (phi1-phi2);
+    auto deta = (eta1-eta2);
+    auto dphi = (phi1-phi2);
     int dr2 = deta*deta + dphi*dphi;
-    pt_t dpt = pt1 - pt2;
+    auto dpt = pt1 - pt2;
     if (dpt < 0) dpt = 0;
     ap_int<26> dpt2 = (dpt > 5792) ? ap_int<26>((1<<25)-1) : ap_int<26>(dpt*dpt);
     int dq = dr2 + (dpt2*ptscale >> 8);
     return ((dr2 < int(dr2max)) && (dq < int(max))) ? ap_uint<NB>(dq) : max;
 }
+
 template<int NB, typename PTS_t>
 ap_uint<NB> dr2_plus_dpt_int_cap(int dr2, pt_t pt1, pt_t pt2, PTS_t ptscale, ap_uint<NB> dr2max, ap_uint<NB> max) {
-    pt_t dpt = pt1 - pt2;
+    auto dpt = pt1 - pt2;
     if (dpt < 0) dpt = 0;
     ap_int<26> dpt2 = (dpt > 5792) ? ap_int<26>((1<<25)-1) : ap_int<26>(dpt*dpt);
     int dq = dr2 + (dpt2*ptscale >> 8);
     return ((dr2 < int(dr2max)) && (dq < int(max))) ? ap_uint<NB>(dq) : max;
 }
+
 template<typename T, int NIn, int NOut>
 void ptsort_hwopt(T in[NIn], T out[NOut]) {
     T tmp[NOut];
@@ -197,8 +164,6 @@ void ptsort_hwopt_ind(T in[NIn], T out[NOut], ap_uint<6> indout[NOut]) {
     }
 
 }
-
-
 
 template<int DR2MAX>
 void tk2em_drvals(EmCaloObj calo[NEMCALO], TkObj track[NTRACK], tk2em_dr_t calo_track_drval[NTRACK][NEMCALO], bool isMu[NTRACK]) {
@@ -1054,20 +1019,6 @@ void mp7wrapped_pfalgo3_only(MP7DataWord input[MP7_NCHANN], PFChargedObj pfch_ou
     #pragma HLS ARRAY_PARTITION variable=isEle_out complete
 
     pfalgo3_part1(emcalo, hadcalo, track, mu, pfpho, pfmu, hadcalo_sub, isMu, isEle);
-    /*for (unsigned int it = 0; it < NMU; it++) {
-        pfmu[it].hwPt = mu[it].hwPt;
-        pfmu[it].hwEta = mu[it].hwEta;
-        pfmu[it].hwPhi = mu[it].hwPhi;
-        pfmu[it].hwId = PID_Muon;
-        pfmu[it].hwZ0 = z0_t(it);
-    }
-    for (unsigned int it = 0; it < NEMCALO; it++) {
-        pfpho[it].hwPt = emcalo[it].hwPt;
-        pfpho[it].hwEta = emcalo[it].hwEta;
-        pfpho[it].hwPhi = emcalo[it].hwPhi;
-        pfpho[it].hwId = PID_Photon;
-        pfpho[it].hwPtPuppi = (emcalo[it].hwPt*it)<<3;
-    }*/
     TkObj track_out[NTRACK];
     #pragma HLS ARRAY_PARTITION variable=track_out complete
     buffer_ff<TkObj,NTRACK>(track, track_out);
@@ -1075,32 +1026,6 @@ void mp7wrapped_pfalgo3_only(MP7DataWord input[MP7_NCHANN], PFChargedObj pfch_ou
     buffer_ff<bool,NTRACK>(isEle, isEle_out);
     buffer_ff<HadCaloObj,NCALO>(hadcalo_sub, hadcalo_sub_out);
     pfalgo3_part2(track_out, hadcalo_sub_out, isMu_out, isEle_out, pfch, pfne);
-    /*for (unsigned int it = 0; it < NTRACK; it++) {
-        pfch[it].hwPt = track_out[it].hwPt;
-        pfch[it].hwEta = track_out[it].hwEta;
-        pfch[it].hwPhi = track_out[it].hwPhi;
-        pfch[it].hwId = it%2==1 ? PID_Charged : PID_Electron;
-        pfch[it].hwZ0 = track_out[it].hwZ0;
-    }
-    for (unsigned int it = 0; it < NSELCALO; it++) {
-        pfne[it].hwPt = hadcalo_sub_out[it].hwPt;
-        pfne[it].hwEta = hadcalo_sub_out[it].hwEta;
-        pfne[it].hwPhi = hadcalo_sub_out[it].hwPhi;
-        pfne[it].hwId = PID_Neutral;
-        pfne[it].hwPtPuppi = (hadcalo_sub_out[it].hwPt*it)<<3;
-    }*/
-
-    //concat drvals, ne
-    // PFNeutralObj pfne_all[NNEUTRALS];
-    // #pragma HLS ARRAY_PARTITION variable=pfne_all complete dim=0
-    // for (int i=0; i<NPHOTON; i++) {
-    //     #pragma HLS UNROLL
-    //     pfne_all[i] = pfpho[i];
-    // }
-    // for (int i=0; i<NSELCALO; i++) {
-    //     #pragma HLS UNROLL
-    //     pfne_all[i+NPHOTON] = pfne[i];
-    // }
 
     buffer_ff<PFChargedObj,NTRACK>(pfch, pfch_out);
     buffer_ff<PFNeutralObj,NPHOTON>(pfpho, pfpho_out);

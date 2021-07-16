@@ -43,7 +43,7 @@ void puppi_buffer_ff(OBJ_T obj[NOBJ], OBJ_T obj_out[NOBJ]) {
     #pragma HLS ARRAY_PARTITION variable=obj_tmp complete
    
     for (int iobj = 0; iobj < NOBJ; ++iobj) {
-        #pragma HLS latency min=1
+      //#pragma HLS latency min=1
         #pragma HLS UNROLL
         obj_tmp[iobj] = obj[iobj];
     }
@@ -91,11 +91,10 @@ void simple_puppi_hw(PFChargedObj pfch[NTRACK], PFNeutralObj_puppi pfallne[NNEUT
 
         int sum = 0;
         for (int it = 0; it < NTRACK; ++it) {
-	    auto pfch_reg = puppi_HLS_REG(pfch[it]);
-            if ((Z0 - pfch_reg.hwZ0 > DZMAX) || (Z0 - pfch_reg.hwZ0 < -DZMAX)) continue; // if track is PV
-            int dr2 = dr2_int(pfch_reg.hwEta, pfch_reg.hwPhi, pfallne[in].hwEta, pfallne[in].hwPhi); // if dr is inside puppi cone
+            if ((Z0 - pfch[it].hwZ0 > DZMAX) || (Z0 - pfch[it].hwZ0 < -DZMAX)) continue; // if track is PV
+            int dr2 = dr2_int(pfch[it].hwEta, pfch[it].hwPhi, pfallne[in].hwEta, pfallne[in].hwPhi); // if dr is inside puppi cone
             if (dr2 < DR2MAX) {
-            // std::cout << "(real) Looking at ch " << it << " with pt = " << pfch_reg.hwPt 
+            // std::cout << "(real) Looking at ch " << it << " with pt = " << pfch[it].hwPt 
 	    // 	      << ", dr2 = " << dr2 << ", DR2MAX = "  << DR2MAX << std::endl;
 
                 ap_uint<9> dr2short = dr2 >> 5; // why?
