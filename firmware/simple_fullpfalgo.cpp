@@ -23,6 +23,14 @@ T HLS_REG(T in){
     return in;
 }
 
+template<class T>
+T dr_HLS_REG(T in){
+#pragma HLS pipeline
+#pragma HLS inline off
+#pragma HLS LATENCY min=1 max=1
+    return in;
+}
+
 template<typename OBJ_T, int NOBJ1, int NOBJ2>
 void buffer_ff_2d(OBJ_T calo[NOBJ1][NOBJ2], OBJ_T calo_out[NOBJ1][NOBJ2]) {
 
@@ -69,15 +77,15 @@ void buffer_ff(OBJ_T obj[NOBJ], OBJ_T obj_out[NOBJ]) {
 
 
 int dr2_int(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2) {
-    etaphi_t deta = (eta1-eta2);
-    etaphi_t dphi = (phi1-phi2);
-    return deta*deta + dphi*dphi;
+  ap_int<etaphi_t::width+1> deta = dr_HLS_REG(eta1-eta2);
+  ap_int<etaphi_t::width+1> dphi = dr_HLS_REG(phi1-phi2);
+  return deta*deta + dphi*dphi;
 }
 
 template<int NB>
 ap_uint<NB> dr2_int_cap(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2, ap_uint<NB> max) {
-    auto deta = eta2-eta1;
-    auto dphi = phi2-phi1;
+  auto deta = HLS_REG(eta2-eta1);
+  auto dphi = HLS_REG(phi2-phi1);
     int dr2 = deta*deta + dphi*dphi;
     return (dr2 < int(max) ? ap_uint<NB>(dr2) : max);
 }
