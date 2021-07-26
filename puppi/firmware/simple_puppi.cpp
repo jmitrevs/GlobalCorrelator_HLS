@@ -18,11 +18,11 @@ weight_t puppiweight(int iWeight){
   return _table[iWeight];
 }
 
-/*int dr2_int(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2) { //not needed if pf algo is included
+int dr2_int(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2) {
     etaphi_t deta = (eta1-eta2);
     etaphi_t dphi = (phi1-phi2);
     return deta*deta + dphi*dphi;
-}*/
+}
 
 
 // Use different names to not clash in Vivado_HLS
@@ -39,9 +39,9 @@ template<typename OBJ_T, int NOBJ>
 void puppi_buffer_ff(OBJ_T obj[NOBJ], OBJ_T obj_out[NOBJ]) {
 
     OBJ_T obj_tmp[NOBJ];
-    #pragma HLS DATA_PACK variable=obj_tmp
+    //#pragma HLS DATA_PACK variable=obj_tmp
     #pragma HLS ARRAY_PARTITION variable=obj_tmp complete
-   
+
     for (int iobj = 0; iobj < NOBJ; ++iobj) {
       //#pragma HLS latency min=1
         #pragma HLS UNROLL
@@ -71,8 +71,6 @@ void simple_puppi_hw(PFChargedObj pfch[NTRACK], PFNeutralObj_puppi pfallne[NNEUT
     const z0_t DZMAX = 256;
     const int DR2MAX = PFPUPPI_DR2MAX; // 0.4 cone
 
-    #pragma HLS INTERFACE ap_none port=pfallne
-
     #pragma HLS ARRAY_PARTITION variable=pfch complete
     #pragma HLS ARRAY_PARTITION variable=pfallne complete
     #pragma HLS pipeline II=2
@@ -80,21 +78,18 @@ void simple_puppi_hw(PFChargedObj pfch[NTRACK], PFNeutralObj_puppi pfallne[NNEUT
     ap_uint<17> pt2_shift[NTRACK];
     #pragma HLS ARRAY_PARTITION variable=pt2_shift complete
     for (int it = 0; it < NTRACK; ++it) {
-        #pragma HLS UNROLL
         int mypt2 = (pfch[it].hwPt*pfch[it].hwPt) >> 5;
         pt2_shift[it] = (mypt2 < 131071 ? mypt2 : 131071);  // 131071 == 0x1ffff, so this is saturation
     }
 
     for (int in = 0; in < NNEUTRALS; ++in) {
-        #pragma HLS PIPELINE
-        // std::cout << "Running over " << in << ": pt = " << pfallne[in].hwPt << std::endl;
 
         int sum = 0;
         for (int it = 0; it < NTRACK; ++it) {
             if ((Z0 - pfch[it].hwZ0 > DZMAX) || (Z0 - pfch[it].hwZ0 < -DZMAX)) continue; // if track is PV
             int dr2 = dr2_int(pfch[it].hwEta, pfch[it].hwPhi, pfallne[in].hwEta, pfallne[in].hwPhi); // if dr is inside puppi cone
             if (dr2 < DR2MAX) {
-            // std::cout << "(real) Looking at ch " << it << " with pt = " << pfch[it].hwPt 
+            // std::cout << "(real) Looking at ch " << it << " with pt = " << pfch[it].hwPt
 	    // 	      << ", dr2 = " << dr2 << ", DR2MAX = "  << DR2MAX << std::endl;
 
                 ap_uint<9> dr2short = dr2 >> 5; // why?
@@ -105,7 +100,7 @@ void simple_puppi_hw(PFChargedObj pfch[NTRACK], PFNeutralObj_puppi pfallne[NNEUT
                 sum += term;
 		// std::cout << ", sum = " << sum << std::endl;
             }
-        }    
+        }
         ap_uint<32> eToAlphas = sum >> 10;
 
         if (eToAlphas < PUPPI_TABLE_SIZE) {
@@ -125,7 +120,6 @@ void simple_puppi_hw_output(PFChargedObj pfch_in[NTRACK], PFNeutralObj pfallne_i
     #pragma HLS ARRAY_PARTITION variable=pfallne_in complete
     #pragma HLS ARRAY_PARTITION variable=pfmu complete
     #pragma HLS ARRAY_PARTITION variable=pf_comb complete
-    #pragma HLS INTERFACE ap_none port=pf_comb
     #pragma HLS pipeline II=2
 
     PFNeutralObj_puppi pfallne[NNEUTRALS];
@@ -191,7 +185,10 @@ void simple_puppi_hw_apxoutput(PFChargedObj pfch[NTRACK], PFNeutralObj pfallne[N
     #pragma HLS ARRAY_PARTITION variable=pfallne complete
     #pragma HLS ARRAY_PARTITION variable=pfmu complete
     #pragma HLS ARRAY_PARTITION variable=pf_comb_apx complete
-    #pragma HLS INTERFACE ap_none port=pf_comb_apx
+
+    #pragma HLS disaggregate variable=pfch
+    #pragma HLS disaggregate variable=pfallne
+    #pragma HLS disaggregate variable=pfmu
 
     #pragma HLS pipeline II=2
 
