@@ -18,11 +18,11 @@ weight_t puppiweight(int iWeight){
   return _table[iWeight];
 }
 
-/*int dr2_int(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2) { //not needed if pf algo is included
+int dr2_int(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2) { 
     etaphi_t deta = (eta1-eta2);
     etaphi_t dphi = (phi1-phi2);
     return deta*deta + dphi*dphi;
-}*/
+}
 
 
 // Use different names to not clash in Vivado_HLS
