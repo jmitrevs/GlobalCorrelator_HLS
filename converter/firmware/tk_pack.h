@@ -1,6 +1,6 @@
 #include "tk_input_converter.h"
 
-void pack_L1T_track(ap_uint<kTrackWordSize> &tk,
+inline void pack_L1T_track(ap_uint<kTrackWordSize> &tk,
                     rinv_t     rinv    ,
                     tkphi_t    tkphi   ,
                     tanlam_t   tanlam  ,
@@ -63,8 +63,8 @@ void unpack_L1T_track(ap_uint<kTrackWordSize> in,
 void pack_pf_track(ap_uint<64> &tk,
                    pt_t     pf_pt   ,
                    pt_t     pf_pterr,
-                   etaphi_t pf_eta  ,
-                   etaphi_t pf_phi  ,
+                   eta_t    pf_eta  ,
+                   phi_t    pf_phi  ,
                    z0_t     pf_z0   ,
                    bool     pf_TightQuality){
     bool debug=false;
@@ -79,7 +79,7 @@ void pack_pf_track(ap_uint<64> &tk,
         std::cout << "  pf_TightQuality " << pf_TightQuality << std::endl;
         
     }
-    tk = (pf_TightQuality, pf_z0, pf_phi, pf_eta, pf_pterr, pf_pt);    
+    tk = (pf_TightQuality, pf_pterr, pf_z0, pf_phi, pf_eta, pf_pt);    
 }
 
 void unpack_pf_track(ap_uint<64> in,
@@ -92,9 +92,9 @@ void unpack_pf_track(ap_uint<64> in,
     unsigned int lo = 0;
     unsigned int len = 0;
     len=pt_t    ::width; bit_copy(in, pf_pt          , lo); lo += len;
+    len=eta_t   ::width; bit_copy(in, pf_eta         , lo); lo += len;
+    len=phi_t   ::width; bit_copy(in, pf_phi         , lo); lo += len;
     len=pt_t    ::width; bit_copy(in, pf_pterr       , lo); lo += len;
-    len=etaphi_t::width; bit_copy(in, pf_eta         , lo); lo += len;
-    len=etaphi_t::width; bit_copy(in, pf_phi         , lo); lo += len;
     len=z0_t    ::width; bit_copy(in, pf_z0          , lo); lo += len;
     pf_TightQuality = in[lo];
 }

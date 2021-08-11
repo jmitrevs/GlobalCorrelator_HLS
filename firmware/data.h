@@ -2,9 +2,12 @@
 #define SIMPLE_PFLOW_DATA_H
 
 #include "ap_int.h"
+#include "ap_fixed.h"
 
-typedef ap_int<16> pt_t;
-typedef ap_int<10>  etaphi_t;
+typedef ap_ufixed<14, 12, AP_TRN, AP_SAT> pt_t;
+typedef ap_int<10> eta_t;
+typedef ap_int<10> phi_t;
+
 typedef ap_int<5>  vtx_t;
 typedef ap_uint<3>  particleid_t;
 typedef ap_int<10> z0_t;  // 40cm / 0.1
@@ -63,7 +66,8 @@ enum PID { PID_Charged=0, PID_Neutral=1, PID_Photon=2, PID_Electron=3, PID_Muon=
 
 struct CaloObj {
 	pt_t hwPt;
-	etaphi_t hwEta, hwPhi; // relative to the region center, at calo
+        eta_t hwEta;
+	phi_t hwPhi; // relative to the region center, at calo
 };
 struct HadCaloObj : public CaloObj {
 	pt_t hwEmPt;
@@ -74,8 +78,9 @@ inline void clear(HadCaloObj & c) {
 }
 
 struct EmCaloObj {
-	pt_t hwPt, hwPtErr;
-	etaphi_t hwEta, hwPhi; // relative to the region center, at calo
+        pt_t hwPt, hwPtErr;
+        eta_t hwEta;
+        phi_t hwPhi; // relative to the region center, at calo
 };
 inline void clear(EmCaloObj & c) {
     c.hwPt = 0; c.hwPtErr = 0; c.hwEta = 0; c.hwPhi = 0; 
@@ -83,7 +88,8 @@ inline void clear(EmCaloObj & c) {
 
 struct TkObj {
 	pt_t hwPt, hwPtErr;
-	etaphi_t hwEta, hwPhi; // relative to the region center, at calo
+        eta_t hwEta;
+        phi_t hwPhi; // relative to the region center, at calo
 	z0_t hwZ0;
 	bool hwTightQuality;
 };
@@ -93,7 +99,8 @@ inline void clear(TkObj & c) {
 
 struct MuObj {
 	pt_t hwPt, hwPtErr;
-	etaphi_t hwEta, hwPhi; // relative to the region center, at vtx(?)
+        eta_t hwEta;
+        phi_t hwPhi; // relative to the region center, at vtx(?)
 };
 inline void clear(MuObj & c) {
     c.hwPt = 0; c.hwPtErr = 0; c.hwEta = 0; c.hwPhi = 0; 
@@ -102,20 +109,23 @@ inline void clear(MuObj & c) {
 
 struct PFChargedObj {
 	pt_t hwPt;
-	etaphi_t hwEta, hwPhi; // relative to the region center, at calo
+        eta_t hwEta;
+        phi_t hwPhi; // relative to the region center, at calo
 	particleid_t hwId;
 	z0_t hwZ0;
 };
 struct PFNeutralObj {
 	pt_t hwPt;
-	etaphi_t hwEta, hwPhi; // relative to the region center, at calo
+        eta_t hwEta;
+        phi_t hwPhi; // relative to the region center, at calo
 	particleid_t hwId;
   //pt_t hwPtPuppi;
 };
 
 struct PFNeutralObj_puppi {
 	pt_t hwPt;
-	etaphi_t hwEta, hwPhi; // relative to the region center, at calo
+        eta_t hwEta;
+	phi_t hwPhi; // relative to the region center, at calo
 	particleid_t hwId;
   pt_t hwPtPuppi;
 };
@@ -127,7 +137,8 @@ struct VtxObj {
 };
 struct PFOutputObj {
         pt_t hwPt;
-	etaphi_t hwEta, hwPhi; // relative to the region center, at calo
+        eta_t hwEta;
+        phi_t hwPhi; // relative to the region center, at calo
 	particleid_t hwId;
 	misc_t hwZ0Pup;
 };

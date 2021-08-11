@@ -1,4 +1,4 @@
-#include "simple_fullpfalgo.h"
+include "simple_fullpfalgo.h"
 #include "../puppi/firmware/simple_puppi.h"
 #include "mp7pf_encoding.h"
 #include <cmath>
@@ -68,7 +68,7 @@ void buffer_ff(OBJ_T obj[NOBJ], OBJ_T obj_out[NOBJ]) {
 }
 
 template<int NB>
-ap_uint<NB> dr2_int_cap(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2, ap_uint<NB> max) {
+ap_uint<NB> dr2_int_cap(eta_t eta1, phi_t phi1, eta_t eta2, phi_t phi2, ap_uint<NB> max) {
   auto deta = HLS_REG(eta2-eta1);
   auto dphi = HLS_REG(phi2-phi1);
     int dr2 = deta*deta + dphi*dphi;
@@ -76,7 +76,7 @@ ap_uint<NB> dr2_int_cap(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t ph
 }
 
 template<int NB, typename PTS_t>
-ap_uint<NB> dr2_dpt_int_cap(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2, pt_t pt1, pt_t pt2, PTS_t ptscale, ap_uint<NB> dr2max, ap_uint<NB> max) {
+ap_uint<NB> dr2_dpt_int_cap(eta_t eta1, phi_t phi1, eta_t eta2, phi_t phi2, pt_t pt1, pt_t pt2, PTS_t ptscale, ap_uint<NB> dr2max, ap_uint<NB> max) {
     auto deta = (eta1-eta2);
     auto dphi = (phi1-phi2);
     int dr2 = deta*deta + dphi*dphi;
@@ -446,8 +446,8 @@ void tk2calo_caloalgo(HadCaloObj calo[NCALO], pt_t sumtk[NCALO], int sumtkerr2[N
             }
         }
         pfout[icalo].hwPt  = calopt;
-        pfout[icalo].hwEta = calopt ? calo[icalo].hwEta : etaphi_t(0);
-        pfout[icalo].hwPhi = calopt ? calo[icalo].hwPhi : etaphi_t(0);
+        pfout[icalo].hwEta = calopt ? calo[icalo].hwEta : eta_t(0);
+        pfout[icalo].hwPhi = calopt ? calo[icalo].hwPhi : phi_t(0);
         pfout[icalo].hwId  = calopt ? PID_Neutral : 0;
     }
 }
@@ -486,8 +486,8 @@ void tk2em_elealgo(ap_uint<NEMCALO> em_track_link_bit[NTRACK], bool isEM[NEMCALO
 void tk2em_photons(EmCaloObj calo[NEMCALO], pt_t photonPt[NEMCALO], PFNeutralObj pfout[NSELCALO]) {
     for (int icalo = 0; icalo < NEMCALO; ++icalo) {
         pfout[icalo].hwPt  = photonPt[icalo];
-        pfout[icalo].hwEta = photonPt[icalo] ? calo[icalo].hwEta : etaphi_t(0);
-        pfout[icalo].hwPhi = photonPt[icalo] ? calo[icalo].hwPhi : etaphi_t(0);
+        pfout[icalo].hwEta = photonPt[icalo] ? calo[icalo].hwEta : eta_t(0);
+        pfout[icalo].hwPhi = photonPt[icalo] ? calo[icalo].hwPhi : phi_t(0);
         pfout[icalo].hwId  = photonPt[icalo] ? PID_Photon : 0;
     }
 }

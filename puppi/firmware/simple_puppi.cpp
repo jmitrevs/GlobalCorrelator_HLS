@@ -6,11 +6,6 @@
 #include <cstdio>
 #endif
 
-//typedef ap_uint<7> tk2em_dr_t;
-//typedef ap_uint<10> tk2calo_dr_t;
-typedef ap_uint<10> em2calo_dr_t;
-typedef ap_uint<12> tk2calo_dq_t;
-typedef ap_uint<12> mu2trk_dr_t;
 
 weight_t puppiweight(int iWeight){
   static weight_t _table[PUPPI_TABLE_SIZE];
@@ -18,14 +13,16 @@ weight_t puppiweight(int iWeight){
   return _table[iWeight];
 }
 
-int dr2_int(etaphi_t eta1, etaphi_t phi1, etaphi_t eta2, etaphi_t phi2) {
-    etaphi_t deta = (eta1-eta2);
-    etaphi_t dphi = (phi1-phi2);
+// This casts the differences to a smaller than native value,
+// though that seems to perform better. 
+int dr2_int(eta_t eta1, phi_t phi1, eta_t eta2, phi_t phi2) {
+    eta_t deta = (eta1-eta2);
+    phi_t dphi = (phi1-phi2);
     return deta*deta + dphi*dphi;
 }
 
 
-// Use different names to not clash in Vivado_HLS
+// Use different names to not clash in Vivado_HLS (though it's fine in Vitis_HLS)
 
 template<class T>
 T puppi_HLS_REG(T in){
