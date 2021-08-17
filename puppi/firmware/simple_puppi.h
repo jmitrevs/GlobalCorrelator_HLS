@@ -57,6 +57,7 @@ void apxwrapped_pack_out_comb( PFOutputObj pfout[NOUT], APxDataWord data[NOUT]) 
     #pragma HLS ARRAY_PARTITION variable=pfout complete
     // pack outputs
     for (unsigned int i = 0; i < NOUT; ++i) {
+        data[i] = 0;
         data[i](13, 0) = pfout[i].hwPt;
         data[i](29, 16) = pfout[i].hwZ0Pup;
         data[i](41, 32) = pfout[i].hwEta;
