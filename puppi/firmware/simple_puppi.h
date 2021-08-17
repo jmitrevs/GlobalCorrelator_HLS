@@ -26,9 +26,9 @@ static inline float weight_function_float( float eToAlphaF ){
     float sigmas = (alpha - alphaMed)*(alpha - alphaMed) / ( alphaRms * alphaRms );
     // float weight = boost::math::gamma_p(0.5,sigmas/2.);
     float weight = erf_approx( sqrt(sigmas/2.) ); // samesies as the line above!
-    
+
     if (alpha < alphaMed) weight = 0.; // signed residual
-    return weight*256.; // 8 bit number 
+    return weight*256.; // 8 bit number
 
 }
 
@@ -49,6 +49,36 @@ void simple_puppi_hw(PFChargedObj pfch[NTRACK], PFNeutralObj pfallne[NNEUTRALS],
 void simple_puppi_hw_output(PFChargedObj pfch[NTRACK], PFNeutralObj pfallne[NNEUTRALS], PFChargedObj pfmu[NMU], z0_t Z0, PFOutputObj pf_comb[NALL]);
 void simple_puppi_hw_apxoutput(PFChargedObj pfch[NTRACK], PFNeutralObj pfallne[NNEUTRALS], PFChargedObj pfmu[NMU], z0_t Z0, APxDataWord pf_comb_apx[NALL]);
 void compute_puppi_weight_hw(int index, weight_t &weight);
+
+
+template<int NOUT>
+void apxwrapped_pack_out_comb( PFOutputObj pfout[NOUT], APxDataWord data[NOUT]) {
+    #pragma HLS ARRAY_PARTITION variable=data complete
+    #pragma HLS ARRAY_PARTITION variable=pfout complete
+    // pack outputs
+    for (unsigned int i = 0; i < NOUT; ++i) {
+        data[i](13, 0) = pfout[i].hwPt;
+        data[i](29, 16) = pfout[i].hwZ0Pup;
+        data[i](41, 32) = pfout[i].hwEta;
+        data[i](51, 42) = pfout[i].hwPhi;
+        data[i](54, 52) = pfout[i].hwId;
+    }
+}
+
+template<int NOUT>
+void apxwrapped_unpack_in_comb( APxDataWord data[NOUT], PFOutputObj pfout[NOUT]) {
+    #pragma HLS ARRAY_PARTITION variable=data complete
+    #pragma HLS ARRAY_PARTITION variable=pfout complete
+    // pack outputs
+    for (unsigned int i = 0; i < NOUT; ++i) {
+        pfout[i].hwPt     = data[i](13, 0);
+        pfout[i].hwZ0Pup  = data[i](29, 16);
+        pfout[i].hwEta    = data[i](41, 32);
+        pfout[i].hwPhi    = data[i](51, 42);
+        pfout[i].hwId     = data[i](54, 52);
+    }
+
+}
 
 #endif
 

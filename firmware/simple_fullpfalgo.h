@@ -28,31 +28,6 @@ void sort_output_onlycands(PFOutputObj pf_comb[NALL], PFOutputObj pf_sort[NOUT_S
 void sort_output_apxpack(APxDataWord input[NALL], APxDataWord output[NOUT_SORT]) ;
 template<int NOUT>
 void mp7wrapped_pack_out_comb( PFOutputObj pfout[NOUT], MP7DataWord data[NALL*2]) ;
-template<int NOUT>
-void apxwrapped_pack_out_comb( PFOutputObj pfout[NOUT], APxDataWord data[NOUT]) {
-    #pragma HLS ARRAY_PARTITION variable=data complete
-    #pragma HLS ARRAY_PARTITION variable=pfout complete
-    // pack outputs
-    for (unsigned int i = 0; i < NOUT; ++i) {
-        data[i] = ( pfout[i].hwId, pfout[i].hwPhi, pfout[i].hwEta, pfout[i].hwZ0Pup, pfout[i].hwPt );
-    }
-
-}
-
-template<int NOUT>
-void apxwrapped_unpack_in_comb( APxDataWord data[NOUT], PFOutputObj pfout[NOUT]) {
-    #pragma HLS ARRAY_PARTITION variable=data complete
-    #pragma HLS ARRAY_PARTITION variable=pfout complete
-    // pack outputs
-    for (unsigned int i = 0; i < NOUT; ++i) {
-        pfout[i].hwPt     = data[i](15, 0);
-        pfout[i].hwZ0Pup  = data[i](31, 16);
-        pfout[i].hwEta    = data[i](41, 32);
-        pfout[i].hwPhi    = data[i](51, 42);
-        pfout[i].hwId     = data[i](54, 52);
-    }
-
-}
 
 #endif
 
