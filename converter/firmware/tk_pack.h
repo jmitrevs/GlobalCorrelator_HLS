@@ -27,8 +27,8 @@ inline void pack_L1T_track(ap_uint<kTrackWordSize> &tk,
     ap_uint<extraMVA_t::width> word_extraMVA  = extraMVA.range(extraMVA_t::width-1,0);
     ap_uint<valid_t   ::width> word_valid     = valid   .range(valid_t   ::width-1,0);
 
-    tk = (word_valid, word_extraMVA, word_trackMVA, word_hit, word_bendChi2, word_chi2rz, 
-          word_chi2rphi, word_tkd0, word_tkz0, word_tanlam, word_tkphi, word_rinv);    
+    tk = (word_valid, word_extraMVA, word_trackMVA, word_hit, word_bendChi2, word_chi2rz,
+          word_chi2rphi, word_tkd0, word_tkz0, word_tanlam, word_tkphi, word_rinv);
 }
 
 void unpack_L1T_track(ap_uint<kTrackWordSize> in,
@@ -63,13 +63,13 @@ void unpack_L1T_track(ap_uint<kTrackWordSize> in,
 void pack_pf_track(ap_uint<64> &tk,
                    pt_t     pf_pt   ,
                    pt_t     pf_pterr,
-                   eta_t    pf_eta  ,
-                   phi_t    pf_phi  ,
+                   glbeta_t    pf_eta  ,
+                   glbphi_t    pf_phi  ,
                    z0_t     pf_z0   ,
                    bool     pf_TightQuality){
     bool debug=false;
     if(debug){
-        
+
         std::cout << "pack_pf_track" << std::endl;
         std::cout << "  pf_pt           " << pf_pt          .to_string(16) << std::endl;
         std::cout << "  pf_pterr        " << pf_pterr       .to_string(16) << std::endl;
@@ -77,31 +77,37 @@ void pack_pf_track(ap_uint<64> &tk,
         std::cout << "  pf_phi          " << pf_phi         .to_string(16) << std::endl;
         std::cout << "  pf_z0           " << pf_z0          .to_string(16) << std::endl;
         std::cout << "  pf_TightQuality " << pf_TightQuality << std::endl;
-        
+
     }
-    tk = (pf_TightQuality, pf_pterr, pf_z0, pf_phi, pf_eta, pf_pt);    
+    tk = 0;
+    tk(13, 0) = pf_pt;
+    tk(25, 14) = pf_eta;
+    tk(36, 26) = pf_phi;
+    tk(45, 37) = pf_z0;
+    tk(60, 47) = pf_pterr;
+    tk[61] = pf_TightQuality;
 }
 
 void unpack_pf_track(ap_uint<64> in,
                    pt_t     &pf_pt   ,
                    pt_t     &pf_pterr,
-                   etaphi_t &pf_eta  ,
-                   etaphi_t &pf_phi  ,
+                   glbphi_t &pf_eta  ,
+                   glbphi_t &pf_phi  ,
                    z0_t     &pf_z0   ,
                    bool     &pf_TightQuality){
     unsigned int lo = 0;
     unsigned int len = 0;
     len=pt_t    ::width; bit_copy(in, pf_pt          , lo); lo += len;
-    len=eta_t   ::width; bit_copy(in, pf_eta         , lo); lo += len;
-    len=phi_t   ::width; bit_copy(in, pf_phi         , lo); lo += len;
-    len=pt_t    ::width; bit_copy(in, pf_pterr       , lo); lo += len;
+    len=glbeta_t   ::width; bit_copy(in, pf_eta         , lo); lo += len;
+    len=glbphi_t   ::width; bit_copy(in, pf_phi         , lo); lo += len;
     len=z0_t    ::width; bit_copy(in, pf_z0          , lo); lo += len;
+    len=pt_t    ::width; bit_copy(in, pf_pterr       , lo); lo += len;
     pf_TightQuality = in[lo];
 }
 
-template<class in_t, class out_t> 
+template<class in_t, class out_t>
 void bit_copy(in_t in, out_t &out, int offset){
     for(int i  =out_t::width-1; i>=0; i--){
         out[i] = in[i+offset];
-    }    
+    }
 }

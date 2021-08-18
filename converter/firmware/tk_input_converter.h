@@ -25,7 +25,7 @@ typedef ap_fixed<17,10, AP_RND_CONV, AP_SAT> zdet_t; // helper type
 typedef ap_fixed<18,6, AP_RND_CONV, AP_SAT> tanlam_help_t; // helper type
 
 #define PF_PT_SCALE (4.0)
-#define PF_ETAPHI_SCALE (4*180./3.1415)
+#define PF_ETAPHI_SCALE (4*180./M_PI)
 #define PF_Z0_SCALE (20)
 #define TT_NPHI_SECTORS 9
 
@@ -63,16 +63,16 @@ void unpack_L1T_track(ap_uint<kTrackWordSize> tk,
 void pack_pf_track(ap_uint<64> &tk,
                    pt_t     pf_pt   ,
                    pt_t     pf_pterr,
-                   etaphi_t pf_eta  ,
-                   etaphi_t pf_phi  ,
+                   glbeta_t pf_eta  ,
+                   glbphi_t pf_phi  ,
                    z0_t     pf_z0   ,
                    bool     pf_TightQuality);
 
 void unpack_pf_track(ap_uint<64> tk,
                      pt_t     &pf_pt   ,
                      pt_t     &pf_pterr,
-                     etaphi_t &pf_eta  ,
-                     etaphi_t &pf_phi  ,
+                     glbeta_t &pf_eta  ,
+                     glbphi_t &pf_phi  ,
                      z0_t     &pf_z0   ,
                      bool     &pf_TightQuality);
 

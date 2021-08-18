@@ -7,6 +7,8 @@
 typedef ap_ufixed<14, 12, AP_TRN, AP_SAT> pt_t;
 typedef ap_int<10> eta_t;
 typedef ap_int<10> phi_t;
+typedef ap_int<12> glbeta_t;
+typedef ap_int<11> glbphi_t;
 
 typedef ap_int<5>  vtx_t;
 typedef ap_uint<3>  particleid_t;
