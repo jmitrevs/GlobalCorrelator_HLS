@@ -46,10 +46,10 @@ void pf_input_track_conv_hw(l1tk_word_t in, pf_tk_word_t& out, numlink_t nlink){
     // Propagate phi to calo surface
     rinv_t u_rinv = rinv;
     if (rinv<0) u_rinv = -rinv;
-    etaphi_t dphi;
+    glbphi_t dphi;
     convert_dphi(u_rinv, dphi);
     // TODO include phi wrap-around
-    etaphi_t pf_phi_at_calo;
+    glbphi_t pf_phi_at_calo;
     if (rinv<0) pf_phi_at_calo = tkphi - dphi;
     else pf_phi_at_calo = tkphi + dphi;
 
@@ -59,7 +59,7 @@ void pf_input_track_conv_hw(l1tk_word_t in, pf_tk_word_t& out, numlink_t nlink){
 
     // Convert tan(lambda) to eta. 
     // --> Requires tan(lambda) propagation first
-    etaphi_t pf_eta_at_calo;
+    glbeta_t pf_eta_at_calo;
     convert_eta(tanlam_at_calo, pf_eta_at_calo);
 
     //     // initialize conversion constants
