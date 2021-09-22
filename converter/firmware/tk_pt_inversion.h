@@ -47,8 +47,8 @@ void convert_pt(pt_inv_T inv, pt_T &pt){
 
     ap_uint<PT_INV_TAB_SIZE> index;
     const int offset = 1; // ignore the first bit since 0b0.01111.. = 0.499.. is largest value
-    #pragma unroll
     for(int i=0; i<PT_INV_TAB_SIZE; i++){
+        #pragma HLS UNROLL
         index[PT_INV_TAB_SIZE-1-i] = uinv[urinv_t::width-1-i-offset]; //msb down to lowest
     }
 

@@ -16,7 +16,7 @@ using namespace l1tk;
 #define DPHI_TAB_SIZE 8
 
 typedef ap_uint<96> l1tk_word_t;
-typedef ap_uint<64> pf_tk_word_t;
+typedef ap_uint<72> pf_tk_word_t;
 void pf_input_track_conv_hw(l1tk_word_t in, pf_tk_word_t& out, numlink_t nlink);
 
 typedef ap_fixed<24,12, AP_RND_CONV, AP_SAT> bigfix_t; // helper type
@@ -79,7 +79,7 @@ void unpack_pf_track(ap_uint<64> tk,
 template<class in_t, class out_t> void bit_copy(in_t in, out_t &out, int offset=0);
 
 // hw functions
-void reso_calo(pt_t pt, etaphi_t eta_calo, pt_t& err);
+void reso_calo(pt_t pt, glbeta_t eta_calo, pt_t& err);
 void propagate_tanlam(tkz0_t z0, tanlam_t tanlam, tanlam_t &tanlam_at_det);
 template<class phi_T> void init_dphi_table(phi_T table_out[(1<<DPHI_TAB_SIZE)]);
 template<class pt_inv_T, class phi_T> void convert_dphi_DSP(pt_inv_T inv, phi_T &dphi);

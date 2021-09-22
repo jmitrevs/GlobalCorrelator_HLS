@@ -3,7 +3,7 @@
 
 
 
-void reso_calo(pt_t pt, etaphi_t eta_calo, pt_t& err){
+void reso_calo(pt_t pt, glbeta_t eta_calo, pt_t& err){
     // Resolution from:
     // https://github.com/cms-l1t-offline/cmssw/blob/phase2-l1t-integration-CMSSW_11_1_0_pre6/L1Trigger/Phase2L1ParticleFlow/python/pfTracksFromL1Tracks_cfi.py
     // https://github.com/cms-l1t-offline/cmssw/blob/phase2-l1t-integration-CMSSW_11_1_0_pre6/L1Trigger/Phase2L1ParticleFlow/python/l1ParticleFlow_cff.py

@@ -60,7 +60,7 @@ void unpack_L1T_track(ap_uint<kTrackWordSize> in,
     len=valid_t   ::width; bit_copy(in, valid   , lo); lo += len;
 }
 
-void pack_pf_track(ap_uint<64> &tk,
+void pack_pf_track(pf_tk_word_t &tk,
                    pt_t     pf_pt   ,
                    pt_t     pf_pterr,
                    glbeta_t    pf_eta  ,
@@ -88,7 +88,7 @@ void pack_pf_track(ap_uint<64> &tk,
     tk[61] = pf_TightQuality;
 }
 
-void unpack_pf_track(ap_uint<64> in,
+void unpack_pf_track(pf_tk_word_t in,
                    pt_t     &pf_pt   ,
                    pt_t     &pf_pterr,
                    glbphi_t &pf_eta  ,

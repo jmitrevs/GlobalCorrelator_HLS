@@ -25,10 +25,10 @@ void convert_eta(tanlam_T tanlam, eta_T &eta){
     // Initialize the lookup tables
 #ifdef __HLS_SYN__
     bool initialized = false;
-    etaphi_t eta_table[(1<<ETA_TAB_SIZE)];
+    glbeta_t eta_table[(1<<ETA_TAB_SIZE)];
 #else 
     static bool initialized = false;
-    static etaphi_t eta_table[(1<<ETA_TAB_SIZE)];
+    static glbeta_t eta_table[(1<<ETA_TAB_SIZE)];
 #endif
     if (!initialized) {
         init_eta_table<eta_T>(eta_table);
@@ -42,8 +42,8 @@ void convert_eta(tanlam_T tanlam, eta_T &eta){
     utanlam_t utanlam = tanlam;
 
     ap_uint<ETA_TAB_SIZE> index;
-    #pragma unroll
     for(int i=0; i<ETA_TAB_SIZE; i++){
+        #pragma HLS UNROLL
         index[ETA_TAB_SIZE-1-i] = utanlam[utanlam_t::width-1-i]; //msb down to lowest
     }
 

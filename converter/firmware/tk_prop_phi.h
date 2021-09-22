@@ -50,8 +50,8 @@ void convert_dphi_BRAM(pt_inv_T inv, phi_T &dphi){
 
     ap_uint<DPHI_TAB_SIZE> index;
     const int offset = 1; // ignore the first bit since 0b0.01111.. = 0.499.. is largest value
-    #pragma unroll
     for(int i=0; i<PT_INV_TAB_SIZE; i++){
+      # pragma HLS UNRLOLL
         index[DPHI_TAB_SIZE-1-i] = uinv[urinv_t::width-1-i-offset]; //msb down to lowest
     }
 
